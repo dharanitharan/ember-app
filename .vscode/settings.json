@@ -1,0 +1,9 @@
+{
+  "window.zoomLevel": 0,
+  "sassFormat.indent": 4,
+  "editor.tabSize": 2,
+  "eslint.autoFixOnSave": true,
+  "[javascript]": {
+    "editor.formatOnSave": true
+  }
+}

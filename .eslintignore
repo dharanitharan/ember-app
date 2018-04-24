@@ -1,0 +1,19 @@
+# See https://eslint.org/docs/user-guide/configuring#ignoring-files-and-directories for more about ignoring files.
+
+# compiled output
+/dist
+/tmp
+
+# dependencies
+/config
+/public
+/server
+/node_modules
+/bower_components
+
+# ukb-custom
+/.project
+/.vscode
+
+# Hidden file generated when you view the directory in finder on OSX
+.DS_Store

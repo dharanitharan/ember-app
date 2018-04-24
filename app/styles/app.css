@@ -1,0 +1,100 @@
+html, body {
+  margin: 20px;
+}
+
+.loading-pane {
+  margin: 25px auto;
+}
+
+.loading-message {
+  text-align: center;
+  color: #aaa;
+}
+
+.spinner {
+  background: url('/images/ajax-loader.gif') no-repeat;
+  height: 31px;
+  width: 31px;
+  margin: 0 auto;
+}
+
+.color-grey {
+  color: #555;
+}
+
+.empty-list {
+  min-height: 100px;
+  text-align: center;
+}
+
+.empty-list .empty-message {
+  display: inline-block;
+  color: #555;
+  line-height: 100px;
+}
+
+.band-link .pointer {
+  float: right;
+  display: none;
+}
+
+.band-link.active .pointer {
+  display: block;
+}
+
+.new-band {
+  width: 70%;
+}
+
+.new-band-button {
+  margin-left: 2em;
+  padding: 3px 10px;
+}
+
+.new-song {
+  width: 50%;
+}
+
+.new-song-button {
+  margin-left: 20px;
+}
+
+.rating-panel {
+  float: right;
+}
+
+.rating-star {
+  float: left;
+  margin-left: 3px;
+}
+
+.book-promo {
+  margin: 0 auto;
+  height: 50px;
+  line-height: 50px;
+}
+
+.book-promo .link {
+  margin-left: 10px;
+}
+
+#song-sorting-select {
+  width: inherit;
+}
+
+.song-filter-dropdown{
+  display: -webkit-inline-box;
+}
+
+.song-filter-item{
+  margin-left:8px;
+}
+
+.song-delete-action {
+  display: none;
+}
+
+.song:hover .song-delete-action {
+  display: inline-block;
+  cursor: pointer;
+}

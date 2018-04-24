@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Ember App</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {{content-for 'head'}}
+
+    <link rel="stylesheet" href="{{rootURL}}assets/vendor.css">
+    <link rel="stylesheet" href="{{rootURL}}assets/ember-app.css">
+
+    {{content-for 'head-footer'}}
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top text-center">
+      <div class="book-promo">
+        <span>Want to learn more about Ember JS?</span>
+        <a class="btn btn-success link" href="http://www.google.com">Let's do this!</a>
+      </div>
+    </nav>
+    {{content-for 'body'}}
+
+    <script src="{{rootURL}}assets/vendor.js"></script>
+    <script src="{{rootURL}}assets/ember-app.js"></script>
+    <script src="/js/events.js"></script>
+
+    {{content-for 'body-footer'}}
+  </body>
+</html>
