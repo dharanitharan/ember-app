@@ -1,13 +1,22 @@
 /* eslint-env node */
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
-module.exports = function(defaults) {
+var env = EmberApp.env() || 'development';
+var isProductionLikeBuild = ['production', 'staging'].indexOf(env) > -1;
+var fingerprintOptions = {
+  enabled: isProductionLikeBuild,
+  prepend: 'https://s3.eu-west-2.amazonaws.com/dharanitharan.ember.app/',
+  extensions: ['js', 'css', 'png', 'jpg', 'gif', 'map', 'svg', 'pdf']
+}
+
+module.exports = function (defaults) {
   var app = new EmberApp(defaults, {
     'ember-bootstrap': {
       'bootstrapVersion': 3,
       'importBootstrapFont': true,
       'importBootstrapCSS': true
-    }
+    },
+    fingerprint: fingerprintOptions
   });
 
   // Use `app.import` to add additional libraries to the generated

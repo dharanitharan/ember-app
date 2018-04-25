@@ -25,3 +25,4 @@ package.json.ember-try
 # OSX
 # Hidden file generated when you view the directory in finder on OSX
 .DS_Store
+package-lock.json

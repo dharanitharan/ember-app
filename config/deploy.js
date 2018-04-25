@@ -1,8 +1,50 @@
+/* eslint-env node */
+'use strict';
+
 module.exports = function (deployTarget) {
-  return {
-    pagefront: {
-      app: 'ember-app',
-      key: process.env.PAGEFRONT_KEY
+  let ENV = {
+    build: {
+      environment: deployTarget
+    },
+    'revision-data': {
+      type: 'git-commit'
+    },
+    'pipeline': {
+      activateOnDeploy: true
+    },
+    's3-index': {
+      accessKeyId: "AKIAJLFEZARJD2RQEOPQ",
+      secretAccessKey: "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",
+      bucket: "dharanitharan.ember.app",
+      region: "eu-west-2",
+      allowOverwrite: true
+    },
+    's3': {
+      accessKeyId: "AKIAJLFEZARJD2RQEOPQ",
+      secretAccessKey: "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",
+      bucket: "dharanitharan.ember.app",
+      region: "eu-west-2",
+      cacheControl: 'max-age=0, no-cache, no-store, must-revalidate'
     }
   };
+
+  if (deployTarget === 'development') {
+    ENV.build.environment = 'development';
+    // configure other plugins for development deploy target here
+  }
+
+  if (deployTarget === 'staging') {
+    ENV.build.environment = 'production';
+    // configure other plugins for staging deploy target here
+  }
+
+  if (deployTarget === 'production') {
+    ENV.build.environment = 'production';
+    // configure other plugins for production deploy target here
+  }
+
+  // Note: if you need to build some configuration asynchronously, you can return
+  // a promise that resolves with the ENV object instead of returning the
+  // ENV object synchronously.
+  return ENV;
 };
