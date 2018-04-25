@@ -11,20 +11,6 @@ module.exports = function (deployTarget) {
     },
     'pipeline': {
       activateOnDeploy: true
-    },
-    's3-index': {
-      accessKeyId: "AKIAJLFEZARJD2RQEOPQ",
-      secretAccessKey: "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",
-      bucket: "dharanitharan.ember.app",
-      region: "eu-west-2",
-      allowOverwrite: true
-    },
-    's3': {
-      accessKeyId: "AKIAJLFEZARJD2RQEOPQ",
-      secretAccessKey: "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",
-      bucket: "dharanitharan.ember.app",
-      region: "eu-west-2",
-      cacheControl: 'max-age=0, no-cache, no-store, must-revalidate'
     }
   };
 
