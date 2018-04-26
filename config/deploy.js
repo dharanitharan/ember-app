@@ -14,19 +14,34 @@ module.exports = function (deployTarget) {
     }
   };
 
-  if (deployTarget === 'development') {
+  if (deployTarget === 'digital01') {
     ENV.build.environment = 'development';
-    // configure other plugins for development deploy target here
+    ENV['s3'].bucket = 'digital01.dharanitharan.ember.app';
+    ENV['s3-index'].bucket = 'digital01.dharanitharan.ember.app';
+  }
+
+  if (deployTarget === 'digital02') {
+    ENV.build.environment = 'development';
+    ENV['s3'].bucket = 'digital02.dharanitharan.ember.app';
+    ENV['s3-index'].bucket = 'digital02.dharanitharan.ember.app';
+  }
+
+  if (deployTarget === 'uat') {
+    ENV.build.environment = 'development';
+    ENV['s3'].bucket = 'uat.dharanitharan.ember.app';
+    ENV['s3-index'].bucket = 'uat.dharanitharan.ember.app';
   }
 
   if (deployTarget === 'staging') {
-    ENV.build.environment = 'production';
-    // configure other plugins for staging deploy target here
+    ENV.build.environment = 'development';
+    ENV['s3'].bucket = 'staging.dharanitharan.ember.app';
+    ENV['s3-index'].bucket = 'staging.dharanitharan.ember.app';
   }
 
   if (deployTarget === 'production') {
     ENV.build.environment = 'production';
-    // configure other plugins for production deploy target here
+    ENV['s3'].bucket = 'dharanitharan.ember.app';
+    ENV['s3-index'].bucket = 'dharanitharan.ember.app';
   }
 
   // Note: if you need to build some configuration asynchronously, you can return
