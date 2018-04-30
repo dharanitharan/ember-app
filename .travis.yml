@@ -1,17 +1,57 @@
----
-language: node_js
-node_js:
-  - "6"
-
 sudo: false
 dist: trusty
-
 addons:
   chrome: stable
-
+language: node_js
+node_js:
+- '4'
+- '6'
+- '8'
+- '9'
+- '10'
+branches:
+  only:
+  - master
+  - release
 cache:
+  yarn: true
   directories:
-    - $HOME/.npm
-
+  - "$HOME/.npm"
+  - "$HOME/.cache"
+env:
+- TEST_COMMAND=test-all
+matrix:
+  fast_finish: true
+  exclude:
+  - node_js: '6'
+    env: TEST_COMMAND=test-all
+  include:
+  - node_js: '6'
+    env: TEST_COMMAND=test-all:cover
+  - node_js: '6'
+    env: DISABLE_EMBER_CLI_FEATURES=true; TEST_COMMAND=test-all
 before_install:
-  - npm config set spin false
+- npm config --global set spin false
+- if [[ $(npm -v | cut -d '.' -f 1) -lt 3 ]]; then npm i -g npm@^3; fi
+- if [[ $(npm -v | cut -d '.' -f 1) -gt 4 ]]; then npm i -g npm@^4; fi
+install:
+- npm install -g bower
+- npm install
+- bower install
+script:
+- ember test
+after_success:
+- if [[ $TEST_COMMAND == 'test-all:cover' ]]; then .travis/codecoverage.sh; fi
+- ".travis/deploy.sh"
+before_deploy:
+- test $TRAVIS_TEST_RESULT = 0 && ember build && cd dist
+deploy:
+  provider: s3
+  access_key_id:
+    secure: WBTAZsCwwrZH0TizTmCH8gHKiH4beZlaVwfqNqYnVbQtGE4X8Hhfr/Kx2bXZUoIpk+flpifzCDJBZLx5K8JqmZnMphfohXMo2Dm4IaxWk/rFmElKihvjtaQ+2lUgraaoDGcVC9GLrGxvYT693JG7fHrTBo94uHBYlsiFoO+LdmH2mkSbEoM7ZkMCU9xNE5Bck6TDRYA/6I0u7pwDYVvZq0BKY0xat2TgtPfht0J2/VifqAz+1qCJhMHZutOACoY4LaaGNvZ23Z7qIavkWbE/qZsjd1Y5zW4gVdh9PsYurj7H0ZfHdXA8zV7u3JRiIFIUwMujkYm9Oj2ffq/GiCVF/Qla39/rPGasnkqmScGtnE+99z04Gxbs17ShrEGkbpgOUKsIlxSdVXQGReOGl0HKSxAG/PGnSvZzTceEOjMTaccuHJuGXjAjODUXymNZdqa5uqfMKRx0zhr4ceCjDfNYuzbS0Km62KIQjUP6VoZrZkRWT4Tljma5JWRzXYkxjZwwGPv7EdxxjCHQWrlB4K2rHZJJuoY7Yr0nU81B/f5XGyhodklv+vuDh5Z7vuSsV09gkcNVwU9LzZNLtvgvei98KNAe+M7lrREutonjvc9C2x5zr47bFOM8heGaxgddeDyw+oXJRbtuiPwxBtNc9uTPW833hdEd/xIsGIHPUDrPChs=
+  secret_access_key:
+    secure: NZdI/9YFRfMNgCQ2ABoAmajvbmKN2GMj6Pzc9jJhtZ7PaMzFMMx0K3p30ArrTZXITNFLpX0DIjuEHsVgXOUSETKw2XHyc2mCnw+Xs75Kv0iFI4Dx+H5T6wyUqpHZmwT7DoJwrURXSfXLZGfKK80AT+B647v3OtxUP8TXyaZYEnNjc6qnreHXuvD3OmKvxRRCZhtIuK3yYTreUSK4Pa20ela4s/f0BMj6KE+a9IdcVkosBmw65Gr5UlT30E5cgVbCY0PqwdDMfR6ZyP4NYWt+vqKAmaC6qDQu5B35feSsCLsdmN/8thxyqUY0xUTzV4hes5yw3aXyt3pOhpyFbjcb8OEBNPVaW46NB0Fdxp40RuR2+CiSRnl2rwK148EkKDFyTYMRlG7SNMeYj6Q3sDaKgRrFVLG8/V+hZR6vI5oVGuj2z0x8LMUz11ACbKWTqLq2eB2PXnHLNUmdHme9TMvEXwCeQOZEbcCv+Ky2C2KdHE7rK3ih1nKGbtFYrZRJkj4PmNkf2fpIutyUc43TZ1OQ6V/wpLEfyiPwsji3W3kXpCnGSHu5paEsMt3lpQFPIlD6exu3u3QsP2bW6lXm7hfzpkpAvgCXnzslrg4KyHMbaPFGxvOmYvFBDR6W9ykFi+XTgu0TYHnGDBJkfz3pjgtFn1uePyNLrWwsOfbsSHEozFw=
+  bucket: S3 Bucket
+  skip_cleanup: true
+  region: eu-west-2
+  local_dir: dist
