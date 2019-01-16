@@ -1,0 +1,20 @@
+version: 0.2
+
+phases:
+ install:
+   commands:
+     - echo Installing node_modules
+     - npm install -g ember-cli
+     - npm install
+ pre_build:
+   commands:
+     - node -v
+     - npm -v
+ build:
+   commands:
+     - echo Build started on `date`
+     - ember build --environment=staging
+     - aws s3 cp dist s3://dharanitharan.ember.app --recursive
+ post_build:
+   commands:
+     - echo Build completed on `date`
