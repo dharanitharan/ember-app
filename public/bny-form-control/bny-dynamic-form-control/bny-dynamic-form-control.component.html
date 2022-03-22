@@ -1,0 +1,669 @@
+<div class="dynmc-ctrl-tile" [formGroup]="form">
+    <ng-container *ngIf="attribute.uiOptions.controlType != 'label' && viewOnly == false">
+        <ng-container [ngSwitch]="attribute.uiOptions.controlType">
+            <ng-container *ngSwitchCase="'txt'">
+                <div class="dynmc-ctrl-input">
+                    <ng-container *ngIf="!attribute.uiOptions.textType || attribute.uiOptions.textType === 'text'">
+                        <div class="input-text"
+                            [ngClass]="{'input-disabled' : (form.get(attribute.id) && form.get(attribute.id).disabled) || attribute.disabled || disabled}">
+                            <input name="{{attribute.id}}" type="text"
+                                [ngClass]="{'not-empty': form.get(attribute.id).value || attribute.placeholder}"
+                                trim="blur"
+                                [placeholder]="!isFocus && attribute.placeholder ? attribute.placeholder : ''"
+                                formControlName="{{attribute.id}}" (click)="$event.target.select();"
+                                (focus)="onFocusField($event);isFocus=true" (blur)="isFocus=false"
+                                (change)="onValueChanged($event, attribute.id)"
+                                autofocus="{{focusControl == attribute.id ? 'autofocus' : null}}"
+                                [attr.disabled]="(form.get(attribute.id) && form.get(attribute.id).disabled) || attribute.disabled || disabled ? '' : null"
+                                autocomplete="off" />
+                            <!-- && (!attribute.mandatory || form.get(attribute.id).value) -->
+                            <label
+                                [ngClass]="{'dynmc-ctrl-show-info': attribute.info && (showInfoAlways || isFocus || form.get(attribute.id).value != null || attribute.placeholder)}">
+                                <span>{{attribute.desc}}</span>
+                                <info-icon [content]="attribute.info"></info-icon>
+                            </label>
+                            <i class="hov-circle"
+                                [style.visibility]="!((form.get(attribute.id) && form.get(attribute.id).disabled) || attribute.disabled || disabled) && form.get(attribute.id).value ? (isMobile ? 'visible' : null) : 'hidden'"
+                                (click)="clearValue(form, attribute.id)" tabIndex="-1">
+                                <i class="icons cross-circle"></i>
+                            </i>
+                        </div>
+                    </ng-container>
+                    <ng-container
+                        *ngIf="attribute.uiOptions.textType === 'number' || attribute.uiOptions.textType === 'nonNegativeNumber' || attribute.uiOptions.textType === 'currency'">
+                        <div class="input-text"
+                            [ngClass]="{'input-disabled' : (form.get(attribute.id) && form.get(attribute.id).disabled) || attribute.disabled || disabled}">
+                            <input #input name="{{attribute.id}}" type="text"
+                                [ngClass]="{'not-empty': form.get(attribute.id).value != null || attribute.placeholder, 'input-number': (form.get(attribute.id).value != null || isFocus) && (attribute.uiOptions.textType === 'number' || attribute.uiOptions.textType === 'nonNegativeNumber'), 'input-suffix': attribute.dataType === 'percent' }"
+                                [placeholder]="!isFocus && attribute.placeholder ? attribute.placeholder : ''"
+                                formControlName="{{attribute.id}}" numberOnly alignText='left'
+                                [isDecimal]="(attribute.uiOptions.allowDecimal == null && attribute.dataType === 'percent') || attribute.uiOptions.allowDecimal == true"
+                                [dataType]="attribute.dataType"
+                                precision="{{(attribute.uiOptions.allowDecimal == null && attribute.dataType === 'percent') || attribute.uiOptions.allowDecimal == true ? (attribute.uiOptions.decimalPrecision > 0 ? '' + attribute.uiOptions.decimalPrecision : '2') : null }}"
+                                [integerLength]="(attribute.uiOptions.validations && attribute.uiOptions.validations.max && (attribute.uiOptions.validations.max + '').length) || 0"
+                                [isNegative]="(attribute.uiOptions.validations && attribute.uiOptions.validations.min && attribute.uiOptions.validations.min < 0)"
+                                (click)="$event.target.select();" (focus)="onFocusField($event);isFocus=true"
+                                (blur)="isFocus=false" (change)="onValueChanged($event, attribute.id)"
+                                autofocus="{{focusControl == attribute.id ? 'autofocus' : null}}"
+                                [attr.disabled]="(form.get(attribute.id) && form.get(attribute.id).disabled) || attribute.disabled || disabled ? '' : null"
+                                autocomplete="off" />
+                            <label
+                                [ngClass]="{'dynmc-ctrl-show-info': attribute.info && (showInfoAlways || isFocus || form.get(attribute.id).value != null || attribute.placeholder)}">
+                                <span>{{attribute.desc}}</span>
+                                <info-icon [content]="attribute.info"></info-icon>
+                            </label>
+                            <i class="hov-circle"
+                                [style.visibility]="!((form.get(attribute.id) && form.get(attribute.id).disabled) || attribute.disabled || disabled) && form.get(attribute.id).value != null ? (isMobile ? 'visible' : null) : 'hidden'"
+                                (click)="clearValue(form, attribute.id)" tabIndex="-1">
+                                <i class="icons cross-circle"></i>
+                            </i>
+                        </div>
+                    </ng-container>
+                    <div class="text-hint">
+                        <div class="validation-hint-container"
+                            *ngIf="(form.get(attribute.id).pristine && form.get(attribute.id).untouched) || form.get(attribute.id).valid">
+                            <ng-container
+                                *ngIf="attribute.mandatory && ((form.get(attribute.id).pristine && form.get(attribute.id).untouched) || form.get(attribute.id).valid)">
+                                <span
+                                    *ngIf="attribute.uiOptions.validationHint && attribute.uiOptions.validationHint.required"
+                                    [bnyPopover]="attribute.uiOptions.validationHint.required" triggers="hover"
+                                    placement="bottom" popoverClass="auto-adjust-tooltip">
+                                    {{attribute.uiOptions.validationHint.required}}
+                                </span>
+                                <span
+                                    *ngIf="!attribute.uiOptions.validationHint || !attribute.uiOptions.validationHint.required"
+                                    bnyPopover="Mandatory" triggers="hover" placement="bottom"
+                                    popoverClass="auto-adjust-tooltip">
+                                    Mandatory
+                                </span>
+                            </ng-container>
+                            <ng-container *ngIf="attribute.uiOptions.validations">
+                                <ng-container
+                                    *ngIf="attribute.uiOptions.validations.min != null || attribute.uiOptions.validations.max != null">
+                                    <span *ngIf="attribute.mandatory" class="validation-hint-seperator"></span>
+                                    <ng-container
+                                        *ngIf="attribute.uiOptions.validations.min != null && attribute.uiOptions.validations.max != null">
+                                        <span
+                                            *ngIf="attribute.uiOptions.validationHint && attribute.uiOptions.validationHint.range"
+                                            [bnyPopover]="attribute.uiOptions.validationHint.range" triggers="hover"
+                                            placement="bottom" popoverClass="auto-adjust-tooltip">
+                                            {{attribute.uiOptions.validationHint.range}}
+                                        </span>
+                                        <span
+                                            *ngIf="!attribute.uiOptions.validationHint || !attribute.uiOptions.validationHint.range"
+                                            bnyPopover="(Valid range is {{attribute.uiOptions.validations.min}} - {{attribute.uiOptions.validations.max}})"
+                                            triggers="hover" placement="bottom" popoverClass="auto-adjust-tooltip">
+                                            (Valid range is {{attribute.uiOptions.validations.min}} -
+                                            {{attribute.uiOptions.validations.max}})
+                                        </span>
+                                    </ng-container>
+                                    <ng-container
+                                        *ngIf="attribute.uiOptions.validations.min != null && attribute.uiOptions.validations.max == null">
+                                        <span [bnyPopover]="attribute.uiOptions.validationHint.min" triggers="hover"
+                                            placement="bottom" popoverClass="auto-adjust-tooltip"
+                                            *ngIf="attribute.uiOptions.validationHint && attribute.uiOptions.validationHint.min">
+                                            {{attribute.uiOptions.validationHint.min}}
+                                        </span>
+                                        <span
+                                            bnyPopover="(Value above and equal to {{attribute.uiOptions.validations.min}} is valid)"
+                                            triggers="hover" placement="bottom" popoverClass="auto-adjust-tooltip"
+                                            *ngIf="!attribute.uiOptions.validationHint || !attribute.uiOptions.validationHint.min">
+                                            (Value above and equal to {{attribute.uiOptions.validations.min}} is valid)
+                                        </span>
+                                    </ng-container>
+                                    <ng-container
+                                        *ngIf="attribute.uiOptions.validations.min == null && attribute.uiOptions.validations.max != null">
+                                        <span [bnyPopover]="attribute.uiOptions.validationHint.max" triggers="hover"
+                                            placement="bottom" popoverClass="auto-adjust-tooltip"
+                                            *ngIf="attribute.uiOptions.validationHint && attribute.uiOptions.validationHint.max">
+                                            {{attribute.uiOptions.validationHint.max}}
+                                        </span>
+                                        <span
+                                            bnyPopover="(Value below and equal to {{attribute.uiOptions.validations.max}} is valid)"
+                                            triggers="hover" placement="bottom" popoverClass="auto-adjust-tooltip"
+                                            *ngIf="!attribute.uiOptions.validationHint || !attribute.uiOptions.validationHint.max">
+                                            (Value below and equal to {{attribute.uiOptions.validations.max}} is valid)
+                                        </span>
+                                    </ng-container>
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="attribute.uiOptions.validations.minLength != null || attribute.uiOptions.validations.maxLength != null">
+                                    <span *ngIf="attribute.mandatory" class="validation-hint-seperator"></span>
+                                    <ng-container
+                                        *ngIf="attribute.uiOptions.validations.minLength != null && attribute.uiOptions.validations.maxLength != null">
+                                        <span
+                                            *ngIf="attribute.uiOptions.validationHint && attribute.uiOptions.validationHint.lengthRange"
+                                            [bnyPopover]="attribute.uiOptions.validationHint.lengthRange"
+                                            triggers="hover" placement="bottom" popoverClass="auto-adjust-tooltip">
+                                            {{attribute.uiOptions.validationHint.lengthRange}}
+                                        </span>
+                                        <span
+                                            *ngIf="!attribute.uiOptions.validationHint || !attribute.uiOptions.validationHint.lengthRange"
+                                            bnyPopover="(Valid range is {{attribute.uiOptions.validations.minLength}} - {{attribute.uiOptions.validations.maxLength}} chars)"
+                                            triggers="hover" placement="bottom" popoverClass="auto-adjust-tooltip">
+                                            (Valid range is {{attribute.uiOptions.validations.minLength}} -
+                                            {{attribute.uiOptions.validations.maxLength}} chars)
+                                        </span>
+                                    </ng-container>
+                                    <ng-container
+                                        *ngIf="attribute.uiOptions.validations.minLength != null && attribute.uiOptions.validations.maxLength == null">
+                                        <span [bnyPopover]="attribute.uiOptions.validationHint.minLength"
+                                            triggers="hover" placement="bottom" popoverClass="auto-adjust-tooltip"
+                                            *ngIf="attribute.uiOptions.validationHint && attribute.uiOptions.validationHint.minLength">
+                                            {{attribute.uiOptions.validationHint.minLength}}
+                                        </span>
+                                        <span
+                                            bnyPopover="(Chars more than {{attribute.uiOptions.validations.minLength}} is valid)"
+                                            triggers="hover" placement="bottom" popoverClass="auto-adjust-tooltip"
+                                            *ngIf="!attribute.uiOptions.validationHint || !attribute.uiOptions.validationHint.minLength">
+                                            (Chars more than {{attribute.uiOptions.validations.minLength}} is valid)
+                                        </span>
+                                    </ng-container>
+                                    <ng-container
+                                        *ngIf="attribute.uiOptions.validations.minLength == null && attribute.uiOptions.validations.maxLength != null">
+                                        <span bnyPopover="attribute.uiOptions.validationHint.maxLength" triggers="hover"
+                                            placement="bottom" popoverClass="auto-adjust-tooltip"
+                                            *ngIf="attribute.uiOptions.validationHint && attribute.uiOptions.validationHint.maxLength">
+                                            {{attribute.uiOptions.validationHint.maxLength}}
+                                        </span>
+                                        <span
+                                            bnyPopover="(Chars less than and equal to {{attribute.uiOptions.validations.maxLength}} is valid)"
+                                            triggers="hover" placement="bottom" popoverClass="auto-adjust-tooltip"
+                                            *ngIf="!attribute.uiOptions.validationHint || !attribute.uiOptions.validationHint.maxLength">
+                                            (Chars less than and equal to {{attribute.uiOptions.validations.maxLength}}
+                                            is valid)
+                                        </span>
+                                    </ng-container>
+                                </ng-container>
+                            </ng-container>
+                        </div>
+                        <ng-container *ngIf="form.get(attribute.id).touched || form.get(attribute.id).dirty">
+                            <span class="text-danger"
+                                *ngIf="attribute.mandatory && form.get(attribute.id).hasError('required')"
+                                triggers="hover" placement="bottom" popoverClass="tooltip"
+                                bnyPopover="{{showErrorTooltip ? attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ? attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory' : ''}}"
+                                title="{{showErrorTooltip ? '' : attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ? attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory'}}">
+                                {{attribute.uiOptions.validationMessage &&
+                                attribute.uiOptions.validationMessage.required ?
+                                attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory'}}
+                            </span>
+                            <span class="text-danger"
+                                *ngIf="attribute.uiOptions.validations && attribute.uiOptions.validations.min && form.get(attribute.id).hasError('min')"
+                                triggers="hover" placement="bottom" popoverClass="tooltip"
+                                bnyPopover="{{showErrorTooltip ? attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.min ? attribute.uiOptions.validationMessage.min : attribute.desc + ' cannot be less than ' + form.get(attribute.id).errors['min'].min : ''}}"
+                                title="{{showErrorTooltip ? '' : attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.min ? attribute.uiOptions.validationMessage.min : attribute.desc + ' cannot be less than ' + form.get(attribute.id).errors['min'].min}}">
+                                {{attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.min ?
+                                attribute.uiOptions.validationMessage.min : attribute.desc + ' cannot be less than ' +
+                                form.get(attribute.id).errors['min'].min}}
+                                <!-- {{attribute.desc}} cannot be less than {{form.get(attribute.id).errors['min'].min}} -->
+                            </span>
+                            <span class="text-danger"
+                                *ngIf="attribute.uiOptions.validations && attribute.uiOptions.validations.max && form.get(attribute.id).hasError('max')"
+                                triggers="hover" placement="bottom" popoverClass="tooltip"
+                                bnyPopover="{{showErrorTooltip ? attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.max ? attribute.uiOptions.validationMessage.max : attribute.desc + ' cannot be greater than ' + form.get(attribute.id).errors['max'].max : ''}}"
+                                title="{{showErrorTooltip ? '' : attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.max ? attribute.uiOptions.validationMessage.max : attribute.desc + ' cannot be greater than ' + form.get(attribute.id).errors['max'].max}}">
+                                {{attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.max ?
+                                attribute.uiOptions.validationMessage.max : attribute.desc + ' cannot be greater than '
+                                + form.get(attribute.id).errors['max'].max}}
+                                <!-- {{attribute.desc}} cannot be greater than {{form.get(attribute.id).errors['max'].max}} -->
+                            </span>
+                            <span class="text-danger"
+                                *ngIf="attribute.uiOptions.validations && attribute.uiOptions.validations.minLength && form.get(attribute.id).hasError('minlength')"
+                                triggers="hover" placement="bottom" popoverClass="tooltip"
+                                bnyPopover="{{showErrorTooltip ? attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.minLength ? attribute.uiOptions.validationMessage.minLength : attribute.desc + ' cannot be less than ' + form.get(attribute.id).errors['minlength'].requiredLength + ' chars' : ''}}"
+                                title="{{showErrorTooltip ? '' : attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.minLength ? attribute.uiOptions.validationMessage.minLength : attribute.desc + ' cannot be less than ' + form.get(attribute.id).errors['minlength'].requiredLength + ' chars'}}">
+                                {{attribute.uiOptions.validationMessage &&
+                                attribute.uiOptions.validationMessage.minLength ?
+                                attribute.uiOptions.validationMessage.minLength : attribute.desc + ' cannot be less than
+                                ' + form.get(attribute.id).errors['minlength'].requiredLength + ' chars'}}
+                            </span>
+                            <span class="text-danger"
+                                *ngIf="attribute.uiOptions.validations && attribute.uiOptions.validations.maxLength && form.get(attribute.id).hasError('maxlength')"
+                                triggers="hover" placement="bottom" popoverClass="tooltip"
+                                bnyPopover="{{showErrorTooltip ? attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.maxLength ? attribute.uiOptions.validationMessage.maxLength : attribute.desc + ' cannot be greater than ' + form.get(attribute.id).errors['maxlength'].requiredLength + ' chars' : ''}}"
+                                title="{{showErrorTooltip ? '' : attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.maxLength ? attribute.uiOptions.validationMessage.maxLength : attribute.desc + ' cannot be greater than ' + form.get(attribute.id).errors['maxlength'].requiredLength + ' chars'}}">
+                                {{attribute.uiOptions.validationMessage &&
+                                attribute.uiOptions.validationMessage.maxLength ?
+                                attribute.uiOptions.validationMessage.maxLength : attribute.desc + ' cannot be greater
+                                than ' + form.get(attribute.id).errors['maxlength'].requiredLength + ' chars'}}
+                            </span>
+                            <ng-container *ngFor="let custValMsg of customValidationMessages">
+                                <span class="text-danger" triggers="hover" placement="bottom" popoverClass="tooltip"
+                                    bnyPopover="{{showErrorTooltip ? custValMsg : ''}}"
+                                    title="{{showErrorTooltip ? '' : custValMsg}}">
+                                    {{custValMsg}}
+                                </span>
+                            </ng-container>
+                        </ng-container>
+                        <ng-container *ngIf="attribute.hint && attribute.hint.length">
+                            <ng-container *ngFor="let hintMessage of attribute.hint">
+                                <span *ngIf="hintMessage" title="{{hintMessage | striphtml}}"
+                                    [innerHTML]="hintMessage"></span>
+                            </ng-container>
+                        </ng-container>
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'ddl'">
+                <div class="dynmc-ctrl-select">
+                    <!-- appendTo="body" -->
+                    <select [selectClass]="attribute.selectClass" [selectListClass]="attribute.selectListClass"
+                        [configOptions]="{isCheckBox: attribute.uiOptions.isCheckBox||false, label: attribute.desc, placeholder: attribute.placeholder, info: attribute.info, isEditable: false}"
+                        [formControlInput]="form.get(attribute.id)"
+                        [disabled]="(form.get(attribute.id) && form.get(attribute.id).disabled) || attribute.disabled || disabled"
+                        (selectChange)="onSelectionChange($event, attribute.id)"
+                        (change)="onValueChanged($event, attribute.id)" [showInfoAlways]="showInfoAlways"
+                        [appendTo]="attribute.uiOptions.appendTo || 'body'" [tabindex]="0">
+
+                        <select-item *ngFor="let opt of attribute.uiOptions.selectOptions" [label]="opt.text"
+                            [disable]="opt.disabled" [value]="opt.value" [isChecked]="opt.isChecked"></select-item>
+                    </select>
+                    <div class="text-hint">
+                        <ng-container
+                            *ngIf="attribute.mandatory && (form.get(attribute.id).untouched || form.get(attribute.id).valid)">
+                            <span
+                                *ngIf="attribute.uiOptions.validationHint && attribute.uiOptions.validationHint.required"
+                                title="{{attribute.uiOptions.validationHint.required}}">
+                                {{attribute.uiOptions.validationHint.required}}
+                            </span>
+                            <span
+                                *ngIf="!attribute.uiOptions.validationHint || !attribute.uiOptions.validationHint.required"
+                                title="Mandatory">
+                                Mandatory
+                            </span>
+                        </ng-container>
+                        <ng-container *ngFor="let custValMsg of customValidationMessages">
+                            <span class="text-danger" triggers="hover" placement="bottom" popoverClass="tooltip"
+                                bnyPopover="{{showErrorTooltip ? custValMsg : ''}}"
+                                title="{{showErrorTooltip ? '' : custValMsg}}">
+                                {{custValMsg}}
+                            </span>
+                        </ng-container>
+
+                        <span class="text-danger"
+                            *ngIf="attribute.uiOptions.validations && attribute.uiOptions.validations.min != null && form.get(attribute.id).hasError('min')"
+                            triggers="hover" placement="bottom" popoverClass="tooltip"
+                            bnyPopover="{{showErrorTooltip ? attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.min ? attribute.uiOptions.validationMessage.min : attribute.desc + ' cannot be less than ' + form.get(attribute.id).errors['min'].min : ''}}"
+                            title="{{showErrorTooltip ? '' : attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.min ? attribute.uiOptions.validationMessage.min : attribute.desc + ' cannot be less than ' + form.get(attribute.id).errors['min'].min}}">
+                            {{attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.min ?
+                            attribute.uiOptions.validationMessage.min : attribute.desc + ' cannot be less than ' +
+                            form.get(attribute.id).errors['min'].min}}
+                            <!-- {{attribute.desc}} cannot be less than {{form.get(attribute.id).errors['min'].min}} -->
+                        </span>
+                        <span class="text-danger"
+                            *ngIf="attribute.mandatory && form.get(attribute.id).touched &&  form.get(attribute.id).hasError('required')"
+                            triggers="hover" placement="bottom" popoverClass="tooltip"
+                            bnyPopover="{{showErrorTooltip ? attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ? attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory' : ''}}"
+                            title="{{showErrorTooltip ? '' : attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ? attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory'}}">
+                            {{attribute.uiOptions.validationMessage &&
+                            attribute.uiOptions.validationMessage.required ?
+                            attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory'}}
+                        </span>
+                        <ng-container *ngIf="attribute.hint && attribute.hint.length">
+                            <ng-container *ngFor="let hintMessage of attribute.hint">
+                                <span *ngIf="hintMessage" title="{{hintMessage | striphtml}}"
+                                    [innerHTML]="hintMessage"></span>
+                            </ng-container>
+                        </ng-container>
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'radio'">
+                <div class="dynmc-ctrl-radio"
+                    [ngClass]="{'input-disabled' : (form.get(attribute.id) && form.get(attribute.id).disabled) || attribute.disabled || disabled}">
+                    <label class="dynmc-ctrl-radio-lbl radio-label" [attr.for]="attribute.id">{{attribute.desc}}
+                        <!-- <info-icon [content]="attribute.info"></info-icon> -->
+                    </label>
+                    <div class="dynmc-ctrl-radio-options-cont">
+                        <div class="dynmc-ctrl-radio-option" *ngFor="let opt of attribute.uiOptions.selectOptions">
+                            <div class="dynmc-ctrl-radio-container">
+                                <input class="input-radio" type="radio" [name]="attribute.id" [value]="opt.value"
+                                    [formControlName]="attribute.id"
+                                    [attr.disabled]="(form.get(attribute.id) && form.get(attribute.id).disabled) || opt.disabled || attribute.disabled || disabled ? '' : null"
+                                    (change)="onValueChanged($event, attribute.id)" />
+                                <label></label>
+                            </div>
+                            <span>{{opt.text}}</span>
+                        </div>
+                    </div>
+                    <div class="text-hint">
+                        <ng-container
+                            *ngIf="attribute.mandatory && (form.get(attribute.id).untouched || form.get(attribute.id).valid)">
+                            <span title="{{attribute.uiOptions.validationHint.required}}"
+                                *ngIf="attribute.uiOptions.validationHint && attribute.uiOptions.validationHint.required">
+                                {{attribute.uiOptions.validationHint.required}}
+                            </span>
+                            <span title="Mandatory"
+                                *ngIf="!attribute.uiOptions.validationHint || !attribute.uiOptions.validationHint.required">
+                                Mandatory
+                            </span>
+                        </ng-container>
+                        <span class="text-danger"
+                            *ngIf="attribute.mandatory && form.get(attribute.id).touched && form.get(attribute.id).hasError('required')"
+                            triggers="hover" placement="bottom" popoverClass="tooltip"
+                            bnyPopover="{{showErrorTooltip ? attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ? attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory' : ''}}"
+                            title="{{showErrorTooltip ? '' : attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ? attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory'}}">
+                            {{attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ?
+                            attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory'}}
+                        </span>
+                        <ng-container *ngFor="let custValMsg of customValidationMessages">
+                            <span class="text-danger" triggers="hover" placement="bottom" popoverClass="tooltip"
+                                bnyPopover="{{showErrorTooltip ? custValMsg : ''}}"
+                                title="{{showErrorTooltip ? '' : custValMsg}}">
+                                {{custValMsg}}
+                            </span>
+                        </ng-container>
+                        <ng-container *ngIf="attribute.hint && attribute.hint.length">
+                            <ng-container *ngFor="let hintMessage of attribute.hint">
+                                <span *ngIf="hintMessage" title="{{hintMessage}}">
+                                    {{hintMessage}}
+                                </span>
+                            </ng-container>
+                        </ng-container>
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'checkbox'">
+                <div class="dynmc-ctrl-checkbox">
+                    <!-- <label class="dynmc-ctrl-radio-lbl" [attr.for]="attribute.id">{{attribute.desc}}</label> -->
+                    <div class="dynmc-ctrl-checkbox-container"
+                        [ngClass]="{'input-disabled' : (form.get(attribute.id) && form.get(attribute.id).disabled) || attribute.disabled || disabled}">
+                        <label class="input-checkbox" style="--checkmark-height-width: 15px">
+                            <input type="checkbox" class="checkbox" [name]="attribute.id"
+                                [formControlName]="attribute.id"
+                                [attr.disabled]="(form.get(attribute.id) && form.get(attribute.id).disabled) || attribute.disabled || disabled ? '' : null"
+                                (change)="onValueChanged($event, attribute.id)">
+                            {{attribute.desc}}
+                        </label>
+                    </div>
+                    <div class="text-hint">
+                        <ng-container
+                            *ngIf="attribute.mandatory && (form.get(attribute.id).untouched || form.get(attribute.id).valid)">
+                            <span title="{{attribute.uiOptions.validationHint.required}}"
+                                *ngIf="attribute.uiOptions.validationHint && attribute.uiOptions.validationHint.required">
+                                {{attribute.uiOptions.validationHint.required}}
+                            </span>
+                            <span title="Mandatory"
+                                *ngIf="!attribute.uiOptions.validationHint || !attribute.uiOptions.validationHint.required">
+                                Mandatory
+                            </span>
+                        </ng-container>
+                        <span class="text-danger"
+                            *ngIf="attribute.mandatory && form.get(attribute.id).touched && form.get(attribute.id).hasError('required')"
+                            triggers="hover" placement="bottom" popoverClass="tooltip"
+                            bnyPopover="{{showErrorTooltip ? attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ? attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory' : ''}}"
+                            title="{{showErrorTooltip ? '' : attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ? attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory'}}">
+                            {{attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ?
+                            attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory'}}
+                        </span>
+                        <ng-container *ngFor="let custValMsg of customValidationMessages">
+                            <span class="text-danger" triggers="hover" placement="bottom" popoverClass="tooltip"
+                                bnyPopover="{{showErrorTooltip ? custValMsg : ''}}"
+                                title="{{showErrorTooltip ? '' : custValMsg}}">
+                                {{custValMsg}}
+                            </span>
+                        </ng-container>
+                        <ng-container *ngIf="attribute.hint && attribute.hint.length">
+                            <ng-container *ngFor="let hintMessage of attribute.hint">
+                                <span *ngIf="hintMessage" title="{{hintMessage}}">
+                                    {{hintMessage}}
+                                </span>
+                            </ng-container>
+                        </ng-container>
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'date'">
+                <div class="dynmc-ctrl-checkbox">
+                    <div class="dynmc-ctrl-datepicker-container">
+                        <datepicker [maxDate]="attribute.maxDate" [minDate]="attribute.minDate"
+                            [datepickerFormControl]="form.get(attribute.id)" [placeholder]="attribute.placeholder"
+                            (dateChange)="onValueChanged($event, attribute.id)"
+                            [appendTo]="attribute.uiOptions.appendTo">
+                        </datepicker>
+                    </div>
+                    <div class="text-hint">
+                        <ng-container
+                            *ngIf="attribute.mandatory && (form.get(attribute.id).untouched || form.get(attribute.id).valid)">
+                            <span title="{{attribute.uiOptions.validationHint.required}}"
+                                *ngIf="attribute.uiOptions.validationHint && attribute.uiOptions.validationHint.required">
+                                {{attribute.uiOptions.validationHint.required}}
+                            </span>
+                            <span title="Mandatory"
+                                *ngIf="!attribute.uiOptions.validationHint || !attribute.uiOptions.validationHint.required">
+                                Mandatory
+                            </span>
+                        </ng-container>
+                        <span class="text-danger"
+                            *ngIf="attribute.mandatory && form.get(attribute.id).touched && form.get(attribute.id).hasError('required')"
+                            triggers="hover" placement="bottom" popoverClass="tooltip"
+                            bnyPopover="{{showErrorTooltip ? attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ? attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory' : ''}}"
+                            title="{{showErrorTooltip ? '' : attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ? attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory'}}">
+                            {{attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ?
+                            attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory'}}
+                        </span>
+                        <ng-container *ngFor="let custValMsg of customValidationMessages">
+                            <span class="text-danger" triggers="hover" placement="bottom" popoverClass="tooltip"
+                                bnyPopover="{{showErrorTooltip ? custValMsg : ''}}"
+                                title="{{showErrorTooltip ? '' : custValMsg}}">
+                                {{custValMsg}}
+                            </span>
+                        </ng-container>
+                        <ng-container *ngIf="attribute.hint && attribute.hint.length">
+                            <ng-container *ngFor="let hintMessage of attribute.hint">
+                                <span *ngIf="hintMessage" title="{{hintMessage}}">
+                                    {{hintMessage}}
+                                </span>
+                            </ng-container>
+                        </ng-container>
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'typeahead'">
+                <div class="dynmc-ctrl-typeahead">
+                    <div class="dynmc-ctrl-typeahead-container">
+                        <typeahead [getData]="attribute.typeaheadCB" [configOptions]="{autoSelect: attribute.uiOptions.autoSelect, 
+                                virtualScroll: attribute.uiOptions.virtualScroll || false,
+                                itemSize: attribute.uiOptions.itemSize || 35, 
+                                valueKey:attribute.uiOptions.valueKey, 
+                                labelKey:attribute.uiOptions.labelKey, 
+                                label: attribute.desc, placeholder: attribute.placeholder, 
+                                triggererLength:attribute.uiOptions.typeaheadTriggererLen, 
+                                appendTo: attribute.uiOptions.appendTo,
+                                isCheckBox: attribute.uiOptions.isCheckBox || false
+                            }" [formControlInput]="form.get(attribute.id)"
+                            (selectChange)="onSelectionChange($event, attribute.id)"
+                            (optionsListChanged)="typeaheadOptChange($event, attribute.id)"
+                            (clearInput)="onSelectionChange($event, attribute.id)" [disabled]="attribute.disabled">
+                        </typeahead>
+                    </div>
+                    <div class="text-hint">
+                        <ng-container
+                            *ngIf="attribute.mandatory && (form.get(attribute.id).untouched || form.get(attribute.id).valid)">
+                            <span title="{{attribute.uiOptions.validationHint.required}}"
+                                *ngIf="attribute.uiOptions.validationHint && attribute.uiOptions.validationHint.required">
+                                {{attribute.uiOptions.validationHint.required}}
+                            </span>
+                            <span title="Mandatory"
+                                *ngIf="(!attribute.uiOptions.validationHint) || (!attribute.uiOptions.validationHint.required) && (!customValidationMessages)">
+                                Mandatory
+                            </span>
+                        </ng-container>
+                        <span class="text-danger"
+                            *ngIf="attribute.mandatory && form.get(attribute.id).touched && form.get(attribute.id).hasError('required')"
+                            triggers="hover" placement="bottom" popoverClass="tooltip"
+                            bnyPopover="{{showErrorTooltip ? attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ? attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory' : ''}}"
+                            title="{{showErrorTooltip ? '' : attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ? attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory'}}">
+                            {{attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ?
+                            attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory'}}
+                        </span>
+                        <ng-container *ngFor="let custValMsg of customValidationMessages">
+                            <span class="text-danger" triggers="hover" placement="bottom" popoverClass="tooltip"
+                                bnyPopover="{{showErrorTooltip ? custValMsg : ''}}"
+                                title="{{showErrorTooltip ? '' : custValMsg}}">
+                                {{custValMsg}}
+                            </span>
+                        </ng-container>
+                        <ng-container *ngIf="attribute.hint && attribute.hint.length">
+                            <ng-container *ngFor="let hintMessage of attribute.hint">
+                                <span *ngIf="hintMessage" title="{{hintMessage}}">
+                                    {{hintMessage}}
+                                </span>
+                            </ng-container>
+                        </ng-container>
+                    </div>
+                </div>
+            </ng-container>
+        </ng-container>
+    </ng-container>
+    <ng-container *ngIf="attribute.uiOptions.controlType == 'label' || viewOnly === true">
+        <div class="dynmc-ctrl-type-label">
+            <div class="dynmc-ctrl-type-label-lbl">{{attribute.desc}}</div>
+            <div class="dynmc-ctrl-type-label-value"
+                *ngIf="!attribute.uiOptions.textType || attribute.uiOptions.textType === 'text'">
+                {{form.get(attribute.id).value}}</div>
+            <ng-container
+                *ngIf="attribute.uiOptions.textType === 'number' || attribute.uiOptions.textType === 'nonNegativeNumber' || attribute.uiOptions.textType === 'currency'">
+                <div class="dynmc-ctrl-type-label-value"
+                    *ngIf="(form.get(attribute.id).value == null || form.get(attribute.id).value === '') && !attribute.uiOptions.suppressNullValue">
+                    --</div>
+                <ng-container *ngIf="form.get(attribute.id).value != null && form.get(attribute.id).value !== ''">
+                    <div class="dynmc-ctrl-type-label-value"
+                        *ngIf="attribute.dataType == null || attribute.dataType === 'text' || attribute.dataType === ''">
+                        {{form.get(attribute.id).value}}</div>
+                    <div class="dynmc-ctrl-type-label-value" *ngIf="attribute.dataType === 'number'">
+                        {{form.get(attribute.id).value | number}}</div>
+                    <div class="dynmc-ctrl-type-label-value" *ngIf="attribute.dataType === 'percent'">
+                        {{form.get(attribute.id).value/100 | percent:'1.2-2'}}</div>
+                    <div class="dynmc-ctrl-type-label-value" *ngIf="attribute.dataType === 'usd'">
+                        {{form.get(attribute.id).value | currency:'USD'}}</div>
+                </ng-container>
+            </ng-container>
+            <div class="text-hint">
+                <div class="validation-hint-container"
+                    *ngIf="(form.get(attribute.id).pristine && form.get(attribute.id).untouched) || form.get(attribute.id).valid">
+                    <ng-container
+                        *ngIf="attribute.mandatory && ((form.get(attribute.id).pristine && form.get(attribute.id).untouched) || form.get(attribute.id).valid)">
+                        <span title="{{attribute.uiOptions.validationHint.required}}"
+                            *ngIf="attribute.uiOptions.validationHint && attribute.uiOptions.validationHint.required">
+                            {{attribute.uiOptions.validationHint.required}}
+                        </span>
+                        <span title="Mandatory"
+                            *ngIf="!attribute.uiOptions.validationHint || !attribute.uiOptions.validationHint.required">
+                            Mandatory
+                        </span>
+                    </ng-container>
+                    <ng-container
+                        *ngIf="attribute.uiOptions.validations && (attribute.uiOptions.validations.min != null || attribute.uiOptions.validations.max != null)">
+                        <span *ngIf="attribute.mandatory" class="validation-hint-seperator"></span>
+                        <ng-container
+                            *ngIf="attribute.uiOptions.validations.min != null && attribute.uiOptions.validations.max != null">
+                            <span title="{{attribute.uiOptions.validationHint.range}}"
+                                *ngIf="attribute.uiOptions.validationHint && attribute.uiOptions.validationHint.range">
+                                {{attribute.uiOptions.validationHint.range}}
+                            </span>
+                            <span title="(Valid range is {{attribute.uiOptions.validations.min}} -
+                          {{attribute.uiOptions.validations.max}})"
+                                *ngIf="!attribute.uiOptions.validationHint || !attribute.uiOptions.validationHint.range">
+                                (Valid range is {{attribute.uiOptions.validations.min}} -
+                                {{attribute.uiOptions.validations.max}})
+                            </span>
+                        </ng-container>
+                        <ng-container
+                            *ngIf="attribute.uiOptions.validations.min != null && attribute.uiOptions.validations.max == null">
+                            <span title="{{attribute.uiOptions.validationHint.min}}"
+                                *ngIf="attribute.uiOptions.validationHint && attribute.uiOptions.validationHint.min">
+                                {{attribute.uiOptions.validationHint.min}}
+                            </span>
+                            <span title="(Value above {{attribute.uiOptions.validations.min}} is valid)"
+                                *ngIf="!attribute.uiOptions.validationHint || !attribute.uiOptions.validationHint.min">
+                                (Value above {{attribute.uiOptions.validations.min}} is valid)
+                            </span>
+                        </ng-container>
+                        <ng-container
+                            *ngIf="attribute.uiOptions.validations.min == null && attribute.uiOptions.validations.max != null">
+                            <span title="{{attribute.uiOptions.validationHint.max}}"
+                                *ngIf="attribute.uiOptions.validationHint && attribute.uiOptions.validationHint.max">
+                                {{attribute.uiOptions.validationHint.max}}
+                            </span>
+                            <span title="(Value below {{attribute.uiOptions.validations.max}} is valid)"
+                                *ngIf="!attribute.uiOptions.validationHint || !attribute.uiOptions.validationHint.max">
+                                (Value below {{attribute.uiOptions.validations.max}} is valid)
+                            </span>
+                        </ng-container>
+                    </ng-container>
+                </div>
+                <ng-container *ngIf="form.get(attribute.id).touched || form.get(attribute.id).dirty">
+                    <span class="text-danger" *ngIf="attribute.mandatory && form.get(attribute.id).hasError('required')"
+                        triggers="hover" placement="bottom" popoverClass="tooltip"
+                        bnyPopover="{{showErrorTooltip ? attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ? attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory' : ''}}"
+                        title="{{showErrorTooltip ? '' : attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ? attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory'}}">
+                        {{attribute.uiOptions.validationMessage && attribute.uiOptions.validationMessage.required ?
+                        attribute.uiOptions.validationMessage.required : attribute.desc + ' is Mandatory'}}
+                    </span>
+                    <span class="text-danger"
+                        *ngIf="attribute.uiOptions.validations && attribute.uiOptions.validations.min && form.get(attribute.id).hasError('min')"
+                        triggers="hover" placement="bottom" popoverClass="tooltip"
+                        bnyPopover="{{showErrorTooltip ? attribute.desc + ' cannot be less than ' + form.get(attribute.id).errors['min'].min : ''}}"
+                        title="{{showErrorTooltip ? '' : attribute.desc + ' cannot be less than ' + form.get(attribute.id).errors['min'].min}}">
+                        {{attribute.desc}} cannot be less than {{form.get(attribute.id).errors['min'].min}}
+                    </span>
+                    <span class="text-danger"
+                        *ngIf="attribute.uiOptions.validations && attribute.uiOptions.validations.max && form.get(attribute.id).hasError('max')"
+                        triggers="hover" placement="bottom" popoverClass="tooltip"
+                        bnyPopover="{{showErrorTooltip ? attribute.desc + ' cannot be greater than ' + form.get(attribute.id).errors['max'].max : ''}}"
+                        title="{{showErrorTooltip ? '' : attribute.desc + ' cannot be greater than ' + form.get(attribute.id).errors['max'].max}}">
+                        {{attribute.desc}} cannot be greater than {{form.get(attribute.id).errors['max'].max}}
+                    </span>
+                </ng-container>
+                <ng-container *ngIf="attribute.hint && attribute.hint.length">
+                    <ng-container *ngFor="let hintMessage of attribute.hint">
+                        <span *ngIf="hintMessage" title="{{hintMessage}}">
+                            {{hintMessage}}
+                        </span>
+                    </ng-container>
+                </ng-container>
+            </div>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="attribute.uiOptions.controlType == 'toggle'">
+        <span>{{ attribute.desc }}</span>
+        <div class="toggle dynmc-toggle one-side">
+            <div [ngClass]="{ 'css-tooltip tooltip-right': !attribute.showLabel }"
+                [bnyCssTooltip]="form.get(attribute.id) && form.get(attribute.id).value ?  'Switch To ' + toggleConfig?.option2?.label : 'Switch To ' + toggleConfig?.option1?.label">
+                <div class="switch-container asset-grid-toggle">
+                    <input type="checkbox" id="switch-input-dim-{{toogleGuid}}" formControlName="{{attribute.id}}"
+                        (change)="onValueChanged($event, attribute.id)" #toggleBtn />
+                    <label for="switch-input-dim-{{toogleGuid}}" class="toggle-btn"
+                        [ngClass]="{ 'toggle-btn-off': !toggleBtn.checked, 'toggle-btn-on': toggleBtn.checked }"></label>
+                    <span class="option1">
+                        {{toggleConfig?.option1?.label}}
+                    </span>
+                    <span class="option2">
+                        {{toggleConfig?.option2?.label}}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+
+    <ng-container *ngIf="attribute.uiOptions.controlType == 'toggleOneSwitch'">
+        <div class="toggle dynmc-toggle one-side one-switch" [ngClass]="{ 'is-false' : !form.get(attribute.id).value }">
+            <div class="switch-container">
+                <span class="label-key-ctn" *ngIf="attribute.uiOptions.labelKey">
+                    {{ attribute.uiOptions.labelKey }}
+                </span>
+                <input type="checkbox" id="switch-input-dim-{{toogleGuid}}" formControlName="{{attribute.id}}"
+                    (change)="onValueChanged($event, attribute.id)" />
+                <label for="switch-input-dim-{{toogleGuid}}" class="toggle-btn">
+                </label>
+            </div>
+        </div>
+    </ng-container>
+
+</div>

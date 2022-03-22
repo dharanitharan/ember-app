@@ -1,0 +1,42 @@
+@import '../index.scss';
+.dynmc-form {
+  position: relative;
+  .icons.dynmc-form-reset {
+    position: absolute;
+    right: 0px;
+    cursor: pointer;
+    --icon-height-width: 11px;
+    z-index: 1;
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+  }
+
+  &:hover {
+    .icons.dynmc-form-reset {
+      opacity: 1;
+    }
+  }
+
+  .dynmc-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .dynmc-col {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .reset-link {
+    justify-content: flex-end;
+    display: flex;
+    margin-right: 20px;
+    color: $CP5;
+    font-size: 12px;
+    font-family: $FT2;
+    &.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+}

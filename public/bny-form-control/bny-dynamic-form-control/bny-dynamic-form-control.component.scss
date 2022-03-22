@@ -1,0 +1,190 @@
+@import '../../index';
+
+.dynmc-ctrl-tile {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding-right: 10px;
+  .dynmc-ctrl-input {
+    width: 100%;
+    padding-bottom: 10px;
+    .input-text {
+      > input {
+        padding-right: 5px;
+        &:disabled {
+          border-bottom-style: dotted;
+          opacity:0.5;
+          +label{
+            opacity:0.5;
+          }
+        }
+      }
+      label {
+        display: flex;
+        width: 100%;
+        line-height: 14px;
+        > span {
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          max-width: calc(100% - 17px);
+        }
+        &.dynmc-ctrl-show-info {
+          pointer-events: unset;
+          info-icon {
+            display: block;
+            --icon-height-width: 14px;
+          }
+        }
+        info-icon {
+          display: none;
+          .info {
+            position: absolute;
+            bottom: 0;
+          }
+        }
+      }
+      .hov-circle {
+        margin-bottom: 5px;
+      }
+    }
+  }
+  .dynmc-ctrl-select {
+    width: 100%;
+    padding-bottom: 10px;
+    padding-right: 20px;
+  }
+  .dynmc-ctrl-radio {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 10px;
+    .dynmc-ctrl-radio-lbl {
+      display: flex;
+      align-items: flex-end;
+      padding-top: 12px;
+    }
+    .dynmc-ctrl-radio-options-cont {
+      display: flex;
+      padding-top: 9px;
+      padding-bottom: 4px;
+      .dynmc-ctrl-radio-option {
+        display: flex;
+        align-items: center;
+        .dynmc-ctrl-radio-container {
+          display: flex;
+        }
+        > span {
+          font-size: 13px;
+          padding: 0 10px 0 5px;
+        }
+      }
+    }
+    .dynmc-ctrl-checkbox {
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 10px;
+      .input-checkbox {
+        > span {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+  .dynmc-ctrl-checkbox {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 10px;
+    .dynmc-ctrl-checkbox-container {
+      .input-checkbox {
+        font-size: 13px;
+        margin: 0;
+      }
+    }
+  }
+  .dynmc-ctrl-typeahead {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 10px;
+  }
+  .text-hint {
+    position: static;
+    pointer-events: none;
+    height: unset;
+    min-height: 15px;
+    white-space: unset;
+    width: calc(100% - 17px);
+    .validation-hint-container {
+      display: flex;
+      // flex-wrap: wrap;
+      width: 100%;
+      .validation-hint-seperator {
+        width: 5px;
+      }
+    }
+    span {
+      display: block;
+      padding-bottom: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      pointer-events: auto;
+    }
+  }
+  .dynmc-ctrl-type-label {
+    padding-bottom: 10px;
+    &-lbl {
+      display: flex;
+      align-items: center;
+      height: 20px;
+      font-size: var(--label-text-font-sz);
+      color: var(--label-text-color);
+      font-family: $FT3;
+      text-transform: var(--label-text-transform);
+      padding: 0 5px;
+      background: var(--input-bg-color);
+    }
+    &-value {
+      min-height: 16px;
+      // margin-bottom: 11px;
+      font-size: 13px;
+      padding: 0 5px 9px;
+      background: var(--input-bg-color);
+      color: $CB1;
+    }
+  }
+  .mat-radio-group {
+    display: flex;
+    position: relative;
+    align-items: center;
+    height: 100%;
+    padding-bottom: 10px;
+    padding-top: 16px;
+    .mat-radio-button {
+      margin-right: 8px;
+    }
+  }
+  .input-number {
+    text-align: right !important;
+  }
+}
+.dynmc-toggle {
+  &.toggle {
+    --toggle-width-height: 20px;
+    position: relative;
+    flex-direction: column;
+    align-items: flex-start;
+    .switch-header {
+      display: flex;
+      padding-bottom: 8px;
+      font-size: 10px;
+      font-family: $FT2;
+    }
+    .switch-container {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+}

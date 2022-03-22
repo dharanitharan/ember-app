@@ -1,0 +1,17 @@
+<div class="dynmc-form" *ngIf="!isLoading" #dynamicFGTpl>
+  <span class="link reset-link" *ngIf="isMobile" [ngClass]="{'disabled': !showReset || isFormControlsNullorEmpty}"
+    (click)="resetFormFields()" data-test="btn-reset-fields">Reset All</span>
+  <span *ngIf="!isMobile && showReset && !isFormControlsNullorEmpty" bnyPopover="Clear" triggers="hover"
+    placement="bottom" popoverClass="auto-adjust-tooltip" class="icons reset dynmc-form-reset"
+    (click)="resetFormFields()" data-test="btn-reset-fields"></span>
+  <div [ngClass]="{ 'dynmc-row': isRenderedAsRow, 'dynmc-col': !isRenderedAsRow }" [formGroup]="form">
+    <ng-container *ngFor="let attribute of uiModelAttributes.list">
+      <form-control [attribute]="attribute" [form]="form" [showErrorTooltip]="showErrorTooltip"
+        [isMobile]="isMobile" (fieldsChanged)="onFieldValueChanged($event)"
+        (controlChanged)="onControlValueChanged($event)" class="{{ attribute.uiOptions.className || '' }}"
+        [ngClass]="{ 'dynmc-ctrl-disabled': form.get(attribute.id) && form.get(attribute.id).disabled }"
+        *ngIf="!attribute.hidden" [@expandCollapse]>
+      </form-control>
+    </ng-container>
+  </div>
+</div>
